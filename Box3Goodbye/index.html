@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神岛关服倒计日</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="asset/img/神奇代码岛Logo.png" type="image/png">
+    <!-- 加载屏幕关键样式，防止闪烁 -->
+    <style>
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #d5d5d5, #c0c0c0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out;
+        }
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-content {
+            text-align: center;
+            border: 4px solid #666666;
+            padding: 40px 60px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 30px rgba(102, 102, 102, 0.3);
+            font-family: 'Courier New', monospace;
+        }
+        .loader-title {
+            font-size: 28px;
+            color: #666666;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px rgba(102, 102, 102, 0.3);
+        }
+        .loader-bar-container {
+            width: 300px;
+            height: 20px;
+            border: 3px solid #666666;
+            background: rgba(102, 102, 102, 0.1);
+            margin: 0 auto 15px;
+            overflow: hidden;
+        }
+        .loader-bar {
+            width: 0%;
+            height: 100%;
+            background: #666666;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(102, 102, 102, 0.5);
+        }
+        .loader-text {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 5px;
+        }
+        .loader-percentage {
+            font-size: 16px;
+            color: #444444;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 加载屏幕 -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <h1 class="loader-title">神岛关服倒计日</h1>
+            <div class="loader-bar-container">
+                <div class="loader-bar" id="progress-bar"></div>
+            </div>
+            <p class="loader-text" id="loader-text">正在加载资源...</p>
+            <p class="loader-percentage" id="loader-percentage">0%</p>
+        </div>
+    </div>
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="asset\audio\时暮的思眷 Le Souvenir Avec Le Crepuscule-HOYO-MiX.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 音乐控制按钮 -->
+    <button id="musicControl"
+        style="position: fixed; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background-color: rgba(102, 102, 102, 0.7); color: white; border: none; cursor: pointer; z-index: 1000; display: flex; justify-content: center; align-items: center;">
+        ▶
+    </button>
+    <div class="pixel-container">
+        <!-- 神奇代码岛Logo -->
+        <div class="pixel-bat">
+            <img src="asset/img/神奇代码岛logo.svg" alt="神奇代码岛" class="avatar" style="width: 60px; height: auto;">
+        </div>
+
+        <!-- 标题 -->
+        <div class="pixel-title">
+            <h1>神岛关服倒计日</h1>
+            <p class="subtitle">再见，神岛......</p>
+        </div>
+
+        <!-- 关服公告区域 -->
+        <div class="pixel-content" id="farewell-message-container">
+            <div class="text-box">
+                <h2>关服前......</h2>
+            <div class="farewell-text">
+                <p>亲爱的岛民们，感谢你们陪伴神岛走过的每一段时光。</p>
+                <p>我们在这里创造了无数美好的回忆，</p>
+                <p>结识了志同道合的朋友，</p>
+                <p>留下了难以忘怀的故事。</p>
+                <p>然而，一切终将落幕，</p>
+                <p>曾经热闹的岛屿，终会归于沉寂。</p>
+                <p>虽然神岛即将关闭，但这些回忆将永远珍藏在我们心中。</p>
+                <p>愿我们在未来的日子里，继续追逐梦想，</p>
+                <p>再见了，神奇代码岛。</p>
+                <p>——致所有热爱神岛的岛民</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 丧尸围城倒计日 -->
+        <div class="pixel-countdown" id="zombie-countdown">
+            <h3>丧尸围城倒计日</h3>
+            <div class="countdown-display">
+                <div class="time-unit">
+                    <span id="zombie-days">365</span>
+                    <label>天</label>
+                </div>
+                <div class="time-unit">
+                    <span id="zombie-hours">00</span>
+                    <label>时</label>
+                </div>
+                <div class="time-unit">
+                    <span id="zombie-minutes">00</span>
+                    <label>分</label>
+                </div>
+                <div class="time-unit">
+                    <span id="zombie-seconds">00</span>
+                    <label>秒</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 神岛关服倒计日 -->
+        <div class="pixel-countdown" id="shutdown-countdown" style="display: none;">
+            <h3>神岛关服倒计日</h3>
+            <div class="countdown-display">
+                <div class="time-unit">
+                    <span id="shutdown-days">365</span>
+                    <label>天</label>
+                </div>
+                <div class="time-unit">
+                    <span id="shutdown-hours">00</span>
+                    <label>时</label>
+                </div>
+                <div class="time-unit">
+                    <span id="shutdown-minutes">00</span>
+                    <label>分</label>
+                </div>
+                <div class="time-unit">
+                    <span id="shutdown-seconds">00</span>
+                    <label>秒</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo容器 -->
+        <div class="logo-container">
+            <div
+                style="text-align: center; margin-bottom: 15px; font-size: 20px; font-weight: bold; color: #666666; text-shadow: 0 0 10px rgba(102, 102, 102, 0.5);">
+                联系方式</div>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <a href="https://cdsq.dao3.fun/" id="dao3LogoLink" style="display: inline-block;">
+                    <div
+                        style="width: 80px; height: 80px; border: 2px solid #666666; padding: 5px; background: linear-gradient(135deg, #ffffff, #e8e8e8); box-shadow: 0 0 15px rgba(102, 102, 102, 0.3); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;">
+                        <img src="asset/img/神奇代码岛logo.svg" alt="神奇代码岛"
+                            style="width: 60px; height: 60px; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; filter: hue-rotate(0deg) saturate(1) brightness(1);">
+                    </div>
+                </a>
+                <a href="https://qm.qq.com/q/M0yLomVvWA" id="qqLogoLink" target="_blank" style="display: inline-block;">
+                    <div
+                        style="width: 80px; height: 80px; border: 2px solid #666666; padding: 5px; background: linear-gradient(135deg, #ffffff, #e8e8e8); box-shadow: 0 0 15px rgba(102, 102, 102, 0.3); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;">
+                        <img src="asset/img/qq_logo.svg" alt="QQ"
+                            style="width: 60px; height: 60px; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; filter: hue-rotate(0deg) saturate(1) brightness(1);">
+                    </div>
+                </a>
+                <a href="https://space.bilibili.com/3461579538434424" id="bilibiliLogoLink"
+                    style="display: inline-block;">
+                    <div
+                        style="width: 80px; height: 80px; border: 2px solid #666666; padding: 5px; background: linear-gradient(135deg, #ffffff, #e8e8e8); box-shadow: 0 0 15px rgba(102, 102, 102, 0.3); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;">
+                        <img src="asset/img/bilibili_logo.svg" alt="Bilibili"
+                            style="width: 60px; height: 60px; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; filter: hue-rotate(0deg) saturate(1) brightness(1);">
+                    </div>
+                </a>
+                <!-- <a href="https://gitee.com/bat5801" id="giteeLogoLink" style="display: inline-block;">
+                    <div
+                        style="width: 80px; height: 80px; border: 2px solid #666666; padding: 5px; background: linear-gradient(135deg, #ffffff, #e8e8e8); box-shadow: 0 0 15px rgba(102, 102, 102, 0.3); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;">
+                        <img src="asset/img/gitee.svg" alt="Gitee"
+                            style="width: 60px; height: 60px; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; filter: hue-rotate(0deg) saturate(1) brightness(1);">
+                    </div>
+                </a> -->
+                <!-- <a href="https://github.com/Bat5801" id="githubLogoLink" style="display: inline-block;">
+                    <div
+                        style="width: 80px; height: 80px; border: 2px solid #666666; padding: 5px; background: linear-gradient(135deg, #ffffff, #e8e8e8); box-shadow: 0 0 15px rgba(102, 102, 102, 0.3); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;">
+                        <img src="asset/img/github.svg" alt="GitHub"
+                            style="width: 60px; height: 60px; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; filter: hue-rotate(0deg) saturate(1) brightness(1);">
+                    </div>
+                </a> -->
+                <style>
+                    #dao3LogoLink:hover div,
+                    #qqLogoLink:hover div,
+                    #bilibiliLogoLink:hover div
+                     {
+                        transform: scale(1.1);
+                        box-shadow: 0 0 20px rgba(102, 102, 102, 0.5);
+                    }
+                </style>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 落叶装饰 -->
+    <div class="pixel-decorations" id="leafContainer"></div>
+
+    </div>
+
+    <!-- 版权标注 -->
+    <div class="copyright" style="text-align: center; padding: 30px 20px; font-family: 'MPlus', 'Courier New', monospace; color: #666666; font-size: 14px; border-top: 3px solid #666666; margin-top: 40px;">
+        <p>网页设计：@坦率的血翼蝠5801</p>
+        <p>支持：落幕•神岛纪念碑 创作团队</p>
+        <p>Bgm：时暮的思眷(Le Souvenir Avec Le Crepuscule)-HOYO-MiX</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
